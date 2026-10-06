@@ -1,0 +1,5 @@
+Modelo,Parametros,Tiempo/epoca (s),Mejor val acc,Test acc,Epocas a 80% val
+lenet,337976,1.39,0.9645,0.7254,5
+lenet_bn,337998,1.57,0.9672,0.6647,4
+vgg11,3095748,2.82,0.9846,0.8593,5
+vgg11_bn,3097124,3.21,0.9839,0.8416,9
