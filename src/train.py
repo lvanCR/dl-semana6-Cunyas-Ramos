@@ -41,8 +41,10 @@ def evaluate(model, loader, criterion, device, return_preds=False):
 
 
 def fit(model, train_loader, val_loader, epochs, lr, device, optimizer_fn=None,
-        verbose=True):
+        verbose=True, ckpt_path=None):
     """Entrena y devuelve el historial por época.
+
+    Si ckpt_path está definido, guarda allí el estado con mejor val_acc.
 
     Claves: train_loss, train_acc, val_loss, val_acc, epoch_time.
     """
@@ -60,6 +62,8 @@ def fit(model, train_loader, val_loader, epochs, lr, device, optimizer_fn=None,
         vl, va = evaluate(model, val_loader, criterion, device)
         for k, v in zip(hist, (tl, ta, vl, va, dt)):
             hist[k].append(v)
+        if ckpt_path is not None and va >= max(hist["val_acc"]):
+            torch.save(model.state_dict(), ckpt_path)
         if verbose:
             print(f"ep {ep:02d}/{epochs} | train {tl:.4f}/{ta:.4f} | "
                   f"val {vl:.4f}/{va:.4f} | {dt:.1f}s")
