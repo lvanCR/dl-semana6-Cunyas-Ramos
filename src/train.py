@@ -4,6 +4,8 @@ import time
 import torch
 import torch.nn as nn
 
+from utils import count_params, set_seed
+
 
 def train_one_epoch(model, loader, criterion, optimizer, device):
     model.train()
@@ -38,6 +40,24 @@ def evaluate(model, loader, criterion, device, return_preds=False):
     if return_preds:
         return loss_sum / n, correct / n, torch.cat(trues), torch.cat(preds)
     return loss_sum / n, correct / n
+
+
+def run_experiment(model_fn, tag, train_loader, val_loader, test_loader, epochs, lr,
+                   device, seed, ckpt_dir, optimizer_fn=None, verbose=False):
+    """Entrena con una semilla, restaura el mejor checkpoint (val) y evalúa en test.
+
+    model_fn: callable sin argumentos que devuelve un modelo nuevo.
+    Devuelve dict con params, hist, test_loss, test_acc, y_true, y_pred.
+    """
+    set_seed(seed, train_loader)
+    model = model_fn().to(device)
+    ckpt = ckpt_dir / f"{tag}_s{seed}_best.pt"
+    hist = fit(model, train_loader, val_loader, epochs, lr, device,
+               optimizer_fn=optimizer_fn, verbose=verbose, ckpt_path=ckpt)
+    model.load_state_dict(torch.load(ckpt))
+    tl, ta, y, p = evaluate(model, test_loader, nn.CrossEntropyLoss(), device, return_preds=True)
+    return dict(tag=tag, seed=seed, params=count_params(model), hist=hist,
+                test_loss=tl, test_acc=ta, y_true=y.tolist(), y_pred=p.tolist())
 
 
 def fit(model, train_loader, val_loader, epochs, lr, device, optimizer_fn=None,
