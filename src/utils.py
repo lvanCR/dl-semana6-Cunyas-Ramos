@@ -1,6 +1,9 @@
 """Utilidades compartidas: semilla, rutas del dataset y conteo de parámetros."""
+import os
 import random
 from pathlib import Path
+
+os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")  # antes de iniciar CUDA
 
 import numpy as np
 import torch
@@ -70,11 +73,20 @@ def get_loaders(img_size=64, batch_size=64, val_frac=0.15, mean=MEAN_64, std=STD
     return mk(train, True), mk(val, False), mk(test, False)
 
 
-def set_seed(seed=SEED):
+def set_seed(seed=SEED, loader=None):
+    """Fija todas las semillas y activa cuDNN determinista.
+
+    Si se pasa el loader de train, también reinicia su generador de barajado
+    (si no, el orden de los batches dependería de los entrenamientos previos).
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    if loader is not None:
+        loader.generator.manual_seed(seed)
 
 
 def count_params(model):
