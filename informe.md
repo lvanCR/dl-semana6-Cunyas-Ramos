@@ -61,9 +61,29 @@ Observaciones:
 - lr 1e-2: ninguna variante entrena (≈ azar); en este montaje BN no permitió un LR 10× mayor.
 - Pendiente de discutir: Internal Covariate Shift (Ioffe & Szegedy, 2015).
 
-## 4. Tarea 3 — Transfer learning
+## 4. Tarea 3 — Transfer learning (ResNet-18, ImageNet, 224×224, Adam, batch 64, 10 épocas, 3 semillas)
 
-Pendiente.
+| Modelo | Parámetros totales | Entrenables | LR | Tiempo/época (s) | Mejor val acc | Test acc | Épocas a 80 % val |
+|---|---|---|---|---|---|---|---|
+| ResNet-18 feature extraction | 11 178 564 | 2 052 | 1e-3 | 17.2 ± 0.7 | 0.6466 ± 0.0085 | 0.4222 ± 0.0138 | no llega |
+| ResNet-18 fine-tuning parcial | 11 178 564 | 10 495 492 | 1e-4 | 25.3 ± 0.8 | 0.9998 ± 0.0003 | 0.8250 ± 0.0082 | 1.0 (3/3) |
+| ResNet-18 fine-tuning total | 11 178 564 | 11 178 564 | 1e-5 | 37.8 ± 0.4 | 1.0000 ± 0.0000 | 0.8603 ± 0.0042 | 1.0 (3/3) |
+| VGG-11+BN desde cero (T1) | 3 097 124 | 3 097 124 | 1e-3 | 3.8 ± 0.1 | 0.9819 ± 0.0038 | 0.8514 ± 0.0164 | 9.0 (3/3) |
+
+Test acc por semilla (42 / 43 / 44): feature extraction 0.403 / 0.429 / 0.434; parcial 0.832 / 0.830 / 0.813; total 0.856 / 0.859 / 0.866.
+
+![Curvas T3](results/figures/t3_curvas.png)
+
+![Matriz de confusión del mejor modelo (fine-tuning total, semilla 44)](results/figures/t3_confusion_mejor.png)
+
+Acierto por clase, mejor modelo (fine-tuning total, semilla 44): EOSINOPHIL 0.769, LYMPHOCYTE 1.000, MONOCYTE 0.748, NEUTROPHIL 0.947.
+
+Observaciones:
+- Fine-tuning total es el mejor (test 0.860 ± 0.004) y el más estable entre semillas; supera por poco a VGG-11+BN desde cero (0.851 ± 0.016), dentro de una desviación de este último.
+- Ambos fine-tuning llegan al 80 % de validación en la primera época; desde cero se necesitan 9.
+- Feature extraction queda muy por debajo (test 0.42, val 0.65) con 10 épocas y solo la capa `fc` entrenable.
+- Validación ≈ 100 % frente a test ≈ 83–86 %: la brecha persiste también con modelos preentrenados.
+- Costo: fine-tuning total ≈ 10× más tiempo por época que VGG-11+BN desde cero.
 
 ## 5. Referencias
 
