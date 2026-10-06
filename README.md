@@ -23,6 +23,18 @@ pip install -r requirements.txt
 | `02b_bn_analysis.ipynb` | Tarea 2: BN en VGG-11 con 3 learning rates | 20 min |
 | `03_transfer.ipynb` | Tarea 3: ResNet-18 con 3 estrategias | 40 min |
 
+### Google Colab
+Versiones listas para Colab en `notebooks/colab/` (activar GPU: Entorno de ejecución → Cambiar tipo de entorno → GPU). La primera celda clona el repo y descarga el dataset.
+
+| Notebook | Abrir |
+|---|---|
+| EDA | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvanCR/dl-semana6-Cunyas-Ramos/blob/main/notebooks/colab/01_eda_colab.ipynb) |
+| Tarea 1 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvanCR/dl-semana6-Cunyas-Ramos/blob/main/notebooks/colab/02_lenet_vgg_colab.ipynb) |
+| Tarea 2 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvanCR/dl-semana6-Cunyas-Ramos/blob/main/notebooks/colab/02b_bn_analysis_colab.ipynb) |
+| Tarea 3 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lvanCR/dl-semana6-Cunyas-Ramos/blob/main/notebooks/colab/03_transfer_colab.ipynb) |
+
+Los notebooks de Colab se entregan sin outputs. Los resultados de este README se obtuvieron en local (RTX 4050); en otra GPU las cifras pueden variar ligeramente, aunque las semillas están fijadas.
+
 Reproducibilidad: semillas 42/43/44, cuDNN determinista. Misma semilla → mismas curvas.
 Nota (Windows): en los notebooks `pandas` se importa antes que `torch`; en el orden inverso el kernel de Jupyter se cae al usar `DataFrame.to_csv`.
 
