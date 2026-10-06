@@ -1,0 +1,4 @@
+Comparación,Mediana,p10,p90,Frac > 0.95,Frac > 0.98
+val → train,0.952,0.93,0.971,0.544,0.034
+test → train,0.945,0.922,0.96,0.364,0.0
+train → train (resto),0.95,0.93,0.969,0.512,0.02
