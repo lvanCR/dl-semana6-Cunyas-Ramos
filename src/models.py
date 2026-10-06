@@ -73,5 +73,45 @@ class VGG11Small(nn.Module):
         return self.classifier(self.features(x))
 
 
+class TransferResNet18(nn.Module):
+    """ResNet-18 preentrenada en ImageNet con cabeza nueva de 4 clases.
+
+    strategy:
+      feature_extraction: solo entrena la capa fc final.
+      partial:            congela conv1/bn1/layer1/layer2; entrena layer3, layer4 y fc.
+      full:               entrena todo (usar LR muy pequeño).
+    Las capas BatchNorm congeladas se mantienen en modo eval (estadísticas de ImageNet fijas).
+    """
+    TRAINABLE = {"feature_extraction": ("fc",),
+                 "partial": ("layer3", "layer4", "fc"),
+                 "full": ("conv1", "bn1", "layer1", "layer2", "layer3", "layer4", "fc")}
+
+    def __init__(self, strategy="feature_extraction", num_classes=NUM_CLASSES, pretrained=True):
+        super().__init__()
+        from torchvision import models
+        net = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1 if pretrained else None)
+        net.fc = nn.Linear(net.fc.in_features, num_classes)
+        self.net = net
+        trainable = self.TRAINABLE[strategy]
+        for name, child in net.named_children():
+            for p in child.parameters():
+                p.requires_grad = name in trainable
+
+    def train(self, mode=True):
+        super().train(mode)
+        if mode:
+            for m in self.net.modules():
+                if isinstance(m, nn.BatchNorm2d) and not any(p.requires_grad for p in m.parameters()):
+                    m.eval()
+        return self
+
+    def forward(self, x):
+        return self.net(x)
+
+
+def count_trainable(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
 def build_model(name, use_bn=False):
     return {"lenet": LeNet5, "vgg11": VGG11Small}[name](use_bn=use_bn)
